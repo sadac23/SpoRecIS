@@ -32,6 +32,8 @@ namespace WindowsFormsApplication1
     /// </summary>
     public partial class Form1 : Form
     {
+        private const string MAIL_ADDRESS = "satosatosato11112222@hotmail.com";
+
         private string _url = string.Empty;
         private string _inputFile = string.Empty;
         private ChromeDriver _driver = null;
@@ -61,9 +63,9 @@ namespace WindowsFormsApplication1
                 this._errorMessage = this._errorMessage
                     + "\r\n\r\n管理者に調査を依頼する場合はメールでログファイルを送付してください。"
                     + "\r\n[ログファイル]" + logFilename
-                +"\r\n[送付先]satosatosato11112222@hotmail.com";
+                +"\r\n[送付先]" + MAIL_ADDRESS;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 MessageBox.Show(this._errorMessage, "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -416,5 +418,173 @@ namespace WindowsFormsApplication1
             return value;
         }
 
+        /// <summary>
+        /// 抽選結果確認ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            string queryResultString = string.Empty;
+
+            try
+            {
+                this._log.Info("** 抽選結果確認ボタン押下処理 - start **");
+
+                // Read sample data from CSV file
+                using (CsvFileReader reader = new CsvFileReader(this._inputFile))
+                {
+                    using (CsvFileWriter writer = new CsvFileWriter(ConfigurationManager.AppSettings["output_file"]))
+                    {
+                        //セパレータの設定
+                        reader.Separator = Convert.ToChar(ConfigurationManager.AppSettings["csv_separator"].Replace(@"\t", "\t"));
+                        writer.Separator = Convert.ToChar(ConfigurationManager.AppSettings["csv_separator"].Replace(@"\t", "\t"));
+
+                        CsvRow readRow = new CsvRow();
+
+                        while (reader.ReadRow(readRow))
+                        {
+                            //抽選申込結果文字列を取得
+                            queryResultString = this.GetQueryResults(readRow[0], readRow[1]);
+
+                            //結果書き出し
+                            CsvRow writeRow = new CsvRow();
+                            writeRow.Add(readRow[0]);
+                            writeRow.Add(readRow[1]);
+                            writeRow.Add(queryResultString);
+                            writer.WriteRow(writeRow);
+
+                            if (this.GetGroupBox1Value() == this.radioButton1.Text)
+                            {
+                                SaveScreenshot(readRow[0] + ConfigurationManager.AppSettings["screenshot_file_extension"]);
+                            }
+                        }
+                    }
+                }
+
+                this._log.Info("** 抽選結果確認ボタン押下処理 - end **");
+            }
+            catch (Exception ex)
+            {
+                this._log.Error("** 抽選結果確認ボタン押下処理 - error **", ex);
+                MessageBox.Show(this._errorMessage, "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// パスワード変更ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string resultString = string.Empty;
+            string ssFilename = string.Empty;
+
+            try
+            {
+                this._log.Info("** パスワード変更ボタン押下処理 - start **");
+
+                // Read sample data from CSV file
+                using (CsvFileReader reader = new CsvFileReader(this._inputFile))
+                {
+                    reader.Separator = Convert.ToChar(ConfigurationManager.AppSettings["csv_separator"].Replace(@"\t", "\t"));
+                    CsvRow row = new CsvRow();
+                    while (reader.ReadRow(row))
+                    {
+                        // 新規パスワードを登録する
+                        RegisterNewPW(row[0], row[1], row[2]);
+
+                        if (this.GetGroupBox1Value() == this.radioButton1.Text)
+                        {
+                            ssFilename = row[0] + "_" + row[1] + "_" + row[2]
+                                + ConfigurationManager.AppSettings["screenshot_file_extension"];
+                            // スクリーンショットを保存する
+                            SaveScreenshot(ssFilename);
+                        }
+                    }
+                }
+
+                this._log.Info("** パスワード変更ボタン押下処理 - end **");
+            }
+            catch (Exception ex)
+            {
+                this._log.Error("** パスワード変更ボタン押下処理 - error **", ex);
+                MessageBox.Show(this._errorMessage, "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// 利用者情報入力にアクセスし新パスワードの登録を行う
+        /// </summary>
+        /// <param name="entryId">入力利用者番号</param>
+        /// <param name="entryPass">入力暗証番号</param>
+        /// <param name="entryNewPass">入力新パスワード</param>
+        private void RegisterNewPW(string entryId, string entryPass, string entryNewPass)
+        {
+            try
+            {
+                //画面遷移
+                this._driver.Navigate().GoToUrl(ConfigurationManager.AppSettings["url_sp10001"]);
+
+                //利用者番号
+                IWebElement id = this._driver.FindElement(By.Name("id"));
+                id.SendKeys(entryId);
+
+                //暗証番号
+                IWebElement pass = this._driver.FindElement(By.Name("pass"));
+                pass.SendKeys(entryPass);
+
+                //ＯＫ
+                IWebElement B1 = this._driver.FindElement(By.Name("B1"));
+                B1.Click();
+
+                //現行の情報でログインできたかを判定
+                if (this._driver.PageSource.IndexOf("入力されたデータに誤りがあります。") > 0)
+                {
+                    //何もしない
+                    return;
+                }
+
+                //パスワード
+                IWebElement pass1 = this._driver.FindElement(By.Name("pass1"));
+                pass1.SendKeys(entryNewPass);
+
+                //パスワード確認
+                IWebElement pass2 = this._driver.FindElement(By.Name("pass2"));
+                pass2.SendKeys(entryNewPass);
+
+                //ＯＫ
+                B1 = this._driver.FindElement(By.Name("B1"));
+                B1.Click();
+
+                //登録が正常に完了したかを判定
+                if (this._driver.PageSource.IndexOf("暗証番号からパスワードへの移行が完了しました。") > 0)
+                {
+                    //何もしない
+                    return;
+                }
+            }
+            catch (NoSuchElementException ex1)
+            {
+                this._log.Error("RegisterNewPW - error", ex1);
+
+                //要素取得エラーは無視
+            }
+            catch (UnhandledAlertException ex2)
+            {
+                this._log.Error("RegisterNewPW - error", ex2);
+
+                //ダイアログを取得し閉じる
+                OpenQA.Selenium.IAlert alert = this._driver.SwitchTo().Alert();
+                alert.Accept();
+            }
+            catch (NoAlertPresentException ex3)
+            {
+                this._log.Error("RegisterNewPW - error", ex3);
+
+                //要素取得エラーは無視
+            }
+        }
     }
 }
