@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using log4net;
+
 namespace ReadWriteCsv
 {
     /// <summary>
@@ -202,4 +204,20 @@ namespace ReadWriteCsv
     
     
     }
+}
+
+public class Log
+{
+    private static ILog logger = null;
+
+    public static ILog getLogger()
+    {
+        if (logger == null)
+        {
+            logger = LogManager.GetLogger(@"LogSample");
+        }
+
+        return logger;
+    }
+
 }

@@ -19,6 +19,10 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Support.Extensions;
 
+using log4net;
+using log4net.Appender;
+using log4net.Repository.Hierarchy;
+
 using ReadWriteCsv;
 
 namespace WindowsFormsApplication1
@@ -31,18 +35,38 @@ namespace WindowsFormsApplication1
         private string _url = string.Empty;
         private string _inputFile = string.Empty;
         private ChromeDriver _driver = null;
+        private ILog _log = null;
+        private string _errorMessage = "システムエラーが発生しました。";
 
         public Form1()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
 
-            FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-            this.Text = ver.Comments + "  ver." + ver.ProductVersion;
+                FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+                this.Text = ver.Comments + "  ver." + ver.ProductVersion;
 
-            this._driver = new ChromeDriver();
-//            this._driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(Double.Parse(ConfigurationManager.AppSettings["wait_seconds"])));
-            this._driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(10));
-            this._inputFile = ConfigurationManager.AppSettings["input_file"];
+                this._driver = new ChromeDriver();
+                this._driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(Double.Parse(ConfigurationManager.AppSettings["wait_seconds"])));
+                this._inputFile = ConfigurationManager.AppSettings["input_file"];
+
+                this._log = Log.getLogger();
+
+                //ログファイル名取得
+                Logger rootLogger = ((Hierarchy)this._log.Logger.Repository).Root;
+                FileAppender appender = (FileAppender)rootLogger.GetAppender("MylogAppender") as FileAppender;
+                string logFilename = appender.File;
+
+                this._errorMessage = this._errorMessage
+                    + "\r\n\r\n管理者に調査を依頼する場合はメールでログファイルを送付してください。"
+                    + "\r\n[ログファイル]" + logFilename
+                +"\r\n[送付先]satosatosato11112222@hotmail.com";
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this._errorMessage, "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -56,6 +80,8 @@ namespace WindowsFormsApplication1
 
             try
             {
+                this._log.Info("** 抽選申込結果ボタン押下処理 - start **");
+
                 // Read sample data from CSV file
                 using (CsvFileReader reader = new CsvFileReader(this._inputFile))
                 {
@@ -86,13 +112,21 @@ namespace WindowsFormsApplication1
                         }
                     }
                 }
+
+                this._log.Info("** 抽選申込結果ボタン押下処理 - end **");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this._log.Error("** 抽選申込結果ボタン押下処理 - error **", ex);
+                MessageBox.Show(this._errorMessage, "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        /// <summary>
+        /// 未使用
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
             _url = "https://www.net.city.nagoya.jp/cgi-bin/sp01001";
@@ -194,15 +228,46 @@ namespace WindowsFormsApplication1
                 B1.Click();
 
                 //ダイアログ
-                B1 = this._driver.FindElement(By.Name("B1"));   //ダイアログ取得前に待機
-                OpenQA.Selenium.IAlert alert = this._driver.SwitchTo().Alert();
+                WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(Double.Parse(ConfigurationManager.AppSettings["wait_seconds"])));
+                IAlert alert = wait.Until(drv => drv.SwitchTo().Alert());
+                string alertText = alert.Text;
                 alert.Accept();
+                
+                //                B1 = this._driver.FindElement(By.Name("B1"));   //ダイアログ取得前に待機
+
+                //WebDriverWait wait = new WebDriverWait(this._driver, TimeSpan.FromSeconds(Double.Parse(ConfigurationManager.AppSettings["wait_seconds"])));
+                //wait.until(ExpectedConditions.alertIsPresent());
+                
+//                WebDriverWait wait = new WebDriverWait(this._driver, TimeSpan.FromSeconds(3));
+//                IWebElement element = wait.Until(driver => driver.FindElement(By.Name("q")));
+//                IWebElement element = wait.Until(ExpectedConditions.AlertIsPresent<IWebDriver>());
+//                IWebElement element = wait.Until<>(ExpectedConditions.AlertIsPresent<IWebDriver>());
+
+
+//                OpenQA.Selenium.IAlert alert = this._driver.SwitchTo().Alert();
+//                alert.Accept();
 
                 //結果取得
                 IWebElement return01001 = this._driver.FindElement(By.Name("return01001"));
             }
-            catch(NoSuchElementException)
+            catch (NoSuchElementException ex1)
             {
+                this._log.Error("Register - error", ex1);
+                
+                //要素取得エラーは無視
+            }
+            catch (UnhandledAlertException ex2)
+            {
+                this._log.Error("Register - error", ex2);
+
+                //ダイアログを取得し閉じる
+                OpenQA.Selenium.IAlert alert = this._driver.SwitchTo().Alert();
+                alert.Accept();
+            }
+            catch (NoAlertPresentException ex3)
+            {
+                this._log.Error("Register - error", ex3);
+
                 //要素取得エラーは無視
             }
         }
@@ -245,8 +310,11 @@ namespace WindowsFormsApplication1
                     resultString = "申込なし";
                 }
             }
-            catch(NoSuchElementException)
+            catch(NoSuchElementException ex1)
             {
+                this._log.Error("GetQueryResults - error", ex1);
+
+                //失敗文字列を返す
                 resultString = "照会失敗";
             }
 
@@ -265,6 +333,8 @@ namespace WindowsFormsApplication1
 
             try
             {
+                this._log.Info("** 抽選申込ボタン押下処理 - start **");
+
                 // Read sample data from CSV file
                 using (CsvFileReader reader = new CsvFileReader(this._inputFile))
                 {
@@ -284,10 +354,13 @@ namespace WindowsFormsApplication1
                         }
                     }
                 }
+
+                this._log.Info("** 抽選申込ボタン押下処理 - end **");
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.ToString(),"システムエラー", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                this._log.Error("** 抽選申込ボタン押下処理 - error **", ex);
+                MessageBox.Show(this._errorMessage, "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -302,7 +375,7 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
-        /// 処理ログに書き込む
+        /// 処理ログに書き込む（未使用）
         /// </summary>
         /// <param name="entryId"></param>
         /// <param name="entryPass"></param>
