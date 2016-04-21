@@ -64,3 +64,26 @@ C:\Users\sator_000\Documents\Visual Studio 2013\Projects\WindowsFormsApplication
 C:\Users\sator_000\Documents\Visual Studio 2013\Projects\WindowsFormsApplication1_1.1.0\WindowsFormsApplication1\obj\Release\WindowsFormsApplication1.Form1.resources
 C:\Users\sator_000\Documents\Visual Studio 2013\Projects\WindowsFormsApplication1_1.1.0\WindowsFormsApplication1\obj\Release\SpoRecIS.Properties.Resources.resources
 C:\Users\sator_000\Documents\Visual Studio 2013\Projects\WindowsFormsApplication1_1.1.0\WindowsFormsApplication1\obj\Release\SpoRecIS.csproj.GenerateResource.Cache
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\SpoRecIS.exe.config
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\obj\Release\SpoRecIS.exe
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\obj\Release\SpoRecIS.pdb
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\SpoRecIS.exe
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\SpoRecIS.pdb
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\log4net.dll
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\Selenium.WebDriverBackedSelenium.dll
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\ThoughtWorks.Selenium.Core.dll
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\WebDriver.dll
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\WebDriver.Support.dll
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\log4net.xml
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\Selenium.WebDriverBackedSelenium.pdb
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\Selenium.WebDriverBackedSelenium.xml
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\ThoughtWorks.Selenium.Core.pdb
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\ThoughtWorks.Selenium.Core.xml
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\WebDriver.pdb
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\WebDriver.xml
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\WebDriver.Support.pdb
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\bin\Release\WebDriver.Support.xml
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\obj\Release\SpoRecIS.csprojResolveAssemblyReference.cache
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\obj\Release\WindowsFormsApplication1.Form1.resources
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\obj\Release\SpoRecIS.Properties.Resources.resources
+C:\repository\SpoRecIS_test\WindowsFormsApplication1\obj\Release\SpoRecIS.csproj.GenerateResource.Cache

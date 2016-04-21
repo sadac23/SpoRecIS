@@ -426,10 +426,13 @@ namespace WindowsFormsApplication1
         private void button2_Click_1(object sender, EventArgs e)
         {
             string queryResultString = string.Empty;
+            SpoRecIS.LotteryApplicationConfirmation lac = null;
 
             try
             {
                 this._log.Info("** 抽選結果確認ボタン押下処理 - start **");
+
+                lac = new SpoRecIS.LotteryApplicationConfirmation(this._driver, this._log, ConfigurationManager.AppSettings["url_sp03001"]);
 
                 // Read sample data from CSV file
                 using (CsvFileReader reader = new CsvFileReader(this._inputFile))
@@ -445,7 +448,7 @@ namespace WindowsFormsApplication1
                         while (reader.ReadRow(readRow))
                         {
                             //抽選申込結果文字列を取得
-                            queryResultString = this.GetQueryResults(readRow[0], readRow[1]);
+                            queryResultString = lac.GetQueryResults(readRow[0], readRow[1]);
 
                             //結果書き出し
                             CsvRow writeRow = new CsvRow();
@@ -469,6 +472,11 @@ namespace WindowsFormsApplication1
                 this._log.Error("** 抽選結果確認ボタン押下処理 - error **", ex);
                 MessageBox.Show(this._errorMessage, "システムエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                lac = null;
+            }
+
         }
 
         /// <summary>
