@@ -71,12 +71,15 @@ namespace SpoRecIS
                 //結果
                 IWebElement divMain = this._driver.FindElement(By.Id("main"));
 
-                resultString = "当選あり";
+                resultString = "照会失敗";
 
                 //申込が存在しないかを判定
                 if (this._driver.PageSource.IndexOf("残念ながらすべて落選しました。") > 0)
                 {
                     resultString = "当選なし";
+                }else if (this._driver.PageSource.IndexOf("すべての当選情報を確認されています。") > 0)
+                {
+                    resultString = "当選あり";
                 }
             }
             catch (NoSuchElementException ex1)
