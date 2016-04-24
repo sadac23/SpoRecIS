@@ -28,7 +28,6 @@ namespace SpoRecIS
     public class LotteryApplicationConfirmation
     {
         ChromeDriver _driver = null;
-        ILog _log = null;
         string _url = string.Empty;
 
         /// <summary>
@@ -37,10 +36,9 @@ namespace SpoRecIS
         /// <param name="driver"></param>
         /// <param name="log"></param>
         /// <param name="url"></param>
-        public LotteryApplicationConfirmation(ChromeDriver driver, ILog log, string url)
+        public LotteryApplicationConfirmation(ChromeDriver driver, string url)
         {
             this._driver = driver;
-            this._log = log;
             this._url = url;
         }
 
@@ -71,21 +69,24 @@ namespace SpoRecIS
                 //結果
                 IWebElement divMain = this._driver.FindElement(By.Id("main"));
 
-                resultString = "照会失敗";
+                resultString = "判定不能";
 
                 //申込が存在しないかを判定
                 if (this._driver.PageSource.IndexOf("残念ながらすべて落選しました。") > 0)
                 {
                     resultString = "当選なし";
-                }else if (this._driver.PageSource.IndexOf("すべての当選情報を確認されています。") > 0)
+                }
+                else if (this._driver.PageSource.IndexOf("すべての当選情報を確認されています。") > 0)
+                {
+                    resultString = "当選あり";
+                } 
+                else if (this._driver.PageSource.IndexOf("上記の内容で抽選申込を受け付けました。") > 0)
                 {
                     resultString = "当選あり";
                 }
             }
             catch (NoSuchElementException ex1)
             {
-                this._log.Error("GetQueryResults - error", ex1);
-
                 //失敗文字列を返す
                 resultString = "照会失敗";
             }

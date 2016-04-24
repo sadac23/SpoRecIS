@@ -432,7 +432,7 @@ namespace WindowsFormsApplication1
             {
                 this._log.Info("** 抽選結果確認ボタン押下処理 - start **");
 
-                lac = new SpoRecIS.LotteryApplicationConfirmation(this._driver, this._log, ConfigurationManager.AppSettings["url_sp03001"]);
+                lac = new SpoRecIS.LotteryApplicationConfirmation(this._driver, ConfigurationManager.AppSettings["url_sp03001"]);
 
                 // Read sample data from CSV file
                 using (CsvFileReader reader = new CsvFileReader(this._inputFile))
