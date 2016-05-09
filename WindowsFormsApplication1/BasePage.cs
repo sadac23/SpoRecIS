@@ -14,7 +14,7 @@ namespace SpoRecIS
 {
     public abstract class BasePage : IDisposable
     {
-        private IWebDriver _driver;
+        protected IWebDriver _driver;
 
         protected BasePage(IWebDriver driver)
         {

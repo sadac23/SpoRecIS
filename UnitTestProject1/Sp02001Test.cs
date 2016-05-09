@@ -14,25 +14,28 @@ namespace UnitTestProject1
     [TestClass]
     public class Sp02001Test
     {
-        private IWebDriver _driver;
-
-        public Sp02001Test()        {
-            this._driver = new ChromeDriver();
-        }
-
         [TestMethod]
         public void TestOpen()
         {
-            using (BasePage target = Sp02001.Open(this._driver))
+            using(IWebDriver driver = new ChromeDriver())
             {
-                Assert.AreNotEqual(this._driver.PageSource.IndexOf("利用者情報入力"),-1);
+                Sp02001 target = Sp02001.Open(driver);
+
+                Assert.IsInstanceOfType(target, typeof(Sp02001));
+                Assert.AreNotEqual(driver.PageSource.IndexOf("利用者情報入力"), -1);
             }
         }
 
-        ~Sp02001Test()
+        [TestMethod]
+        public void TestLogin()
         {
-            this._driver.Quit();
-        }
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                Sp02001 target = Sp02001.Open(driver);
+                target.Login("1230158", "56rthe20");
 
+                Assert.AreNotEqual(driver.PageSource.IndexOf("抽選申込一覧"), -1);
+            }
+        }
     }
 }

@@ -33,8 +33,20 @@ namespace SpoRecIS
         /// <param name="id">ユーザID</param>
         /// <param name="pass">パスワード</param>
         /// <returns>抽選申込一覧</returns>
-        public BasePage Login(string id, string pass)
+        public BasePage Login(string entryId, string entryPass)
         {
+            // 利用者番号
+            IWebElement id = this._driver.FindElement(By.Name("id"));
+            id.SendKeys(entryId);
+
+            // 暗証番号
+            IWebElement pass = this._driver.FindElement(By.Name("pass"));
+            pass.SendKeys(entryPass);
+
+            // ＯＫ
+            IWebElement B1 = this._driver.FindElement(By.Name("B1"));
+            B1.Click();
+
             return null;
         }
     }
